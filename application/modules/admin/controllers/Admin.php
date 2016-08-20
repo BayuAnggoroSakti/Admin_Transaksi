@@ -23,13 +23,10 @@ class Admin extends MY_Controller {
 		$this->template->admin_template($data);
 	}
 
-	public function detail()
+	public function detail($id)
 	{
-		$data['title'] = "Admin Panel";
-		$data['content'] = 'admin/detail';
-		$data['judul'] = 'List Detail Transaksi';
-		$data['get_data'] = $this->m_admin->get_data_dtransaksi();
-		$this->template->admin_template($data);
+		$data['get_data'] = $this->m_admin->get_data_dtransaksi($id);
+		return $this->load->view('detail',$data);
 	}
 
 	public function produk()
@@ -59,6 +56,7 @@ class Admin extends MY_Controller {
 		            "status": "false",
 		            "harga": "'.form_error("harga").'",
 		            "nama": "'.form_error("nama").'",
+		            "gambar": "'.form_error("gambar").'",
 		            "deskripsi": "'.form_error("deskripsi").'",
 		            "csrfTokenName": "'.$this->security->get_csrf_token_name().'",
 		            "csrfHash": "'.$this->security->get_csrf_hash().'"
@@ -67,17 +65,44 @@ class Admin extends MY_Controller {
 			}
 			else 
 			{
-				$nama = $this->input->post('nama',true);
-				$deskripsi = $this->input->post('deskripsi',true);
-				$harga = $this->input->post('harga',true);
-				$input_data = array(
-							'nama' => $nama,
-							'deskripsi' => $deskripsi,
-							'harga' => $harga,
-							);
-				$this->db->insert('produk', $input_data);
-				$result = '{ "status": "true" }';
-				echo json_encode($result);
+				  	 $config['upload_path']    = "./assets/produk/";
+					 $config['allowed_types']  = 'gif|jpg|png|jpeg';
+					 $config['max_size']       = '5000';
+					 $config['max_width']      = '5000';
+					 $config['max_height']     = '5000';
+					 $config['file_name']      = $this->input->post('nama',true);
+					 $this->load->library('upload', $config);
+
+					 if (!$this->upload->do_upload('gambar')) 
+					 {
+					 	$result = '{
+				            "status": "false",
+				            "harga": "",
+				            "nama": "",
+				            "gambar": "'.$this->upload->display_errors().'",
+				            "deskripsi": "",
+				            "csrfTokenName": "'.$this->security->get_csrf_token_name().'",
+				            "csrfHash": "'.$this->security->get_csrf_hash().'"
+				        }';
+						echo json_encode($result);
+					 }
+					 else
+					 {
+					 	$nama = $this->input->post('nama',true);
+						$deskripsi = $this->input->post('deskripsi',true);
+						$harga = $this->input->post('harga',true);
+						$input_data = array(
+									'nama' => $nama,
+									'deskripsi' => $deskripsi,
+									'harga' => $harga,
+									'gambar' => $this->upload->file_name
+									);
+						$this->db->insert('produk', $input_data);
+						$result = '{ "status": "true" }';
+						echo json_encode($result);
+					 }
+
+				
 			}
 	}
 

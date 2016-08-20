@@ -12,9 +12,9 @@ class M_admin extends CI_Model{
 		return $query;
 	}
 
-	function get_data_dtransaksi()
+	function get_data_dtransaksi($id)
 	{
-		$query = $this->db->query('SELECT dt.id_detail as id_detail, t.id_transaksi as id_transaksi, p.nama as nama, qty from detail_transaksi dt, transaksi t, produk p where dt.id_transaksi = t.id_transaksi and dt.id_produk = p.id_produk');
+		$query = $this->db->query("SELECT dt.id_detail as id_detail, (harga*qty) as subtotal, t.id_transaksi as id_transaksi, p.nama as nama, qty from detail_transaksi dt, transaksi t, produk p where dt.id_transaksi = t.id_transaksi and dt.id_produk = p.id_produk and t.id_transaksi = '$id' ");
 		return $query;
 	}
 

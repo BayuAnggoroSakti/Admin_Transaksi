@@ -35,9 +35,9 @@
                                     <div class="col-sm-5">
                                     <input rel="tooltip" title="Browse File" class="btn btn-primary" type="button" value="Browse ..." onclick="$(this).parent().find('input[type=file]').click();">
                                      <input type="file" style="visibility:hidden; width: 1px; height: 1px;" id="alkes_img" name="gambar" onchange="validate_file(this)">
-                                     <div style="color:red;" id="gambarError"></div>
                                  </div>
                                 </div>
+
                                 <div class="form-group">
                                   <label class="col-sm-2 control-label">Deskripsi</label>
                                     <div class="col-sm-10">
@@ -58,7 +58,7 @@
                                 <div class="form-group">
                                     <div class="col-sm-4 col-sm-offset-2">
                                         <a href="<?php echo site_url('admin/produk') ?>" onclick="return confirm('Apakah anda yakin?')" class="btn btn-white">Cancel</a>
-                                         <input type="submit" id="submited" class="btn btn-primary" value="Submit" class="submit" />
+                                         <a href="javascript:void(0)" id="submited" onclick="submit()" class="btn btn-primary">Submit</a>
                                     </div>
                                 </div>
                                 <div id="token">
@@ -127,54 +127,53 @@
                       $(this).parent().find('input[type="hidden"]').val(value);
                   });
               });
-
-              $("#prosesTambah").on('submit',(function(e) {
-                e.preventDefault();
-                $('#submited').text('Processing...'); //change button text
-                $('#submited').attr('disabled',true); //set button disable
-                $('#submited').attr('class','btn btn-warning');
-                $.ajax({
-                url: "<?php echo site_url("admin/proses_tambah_p") ?>", // Url to which the request is send
-                type: "POST",             // Type of request to be send, called as method
-                data: new FormData(this), // Data sent to server, a set of key/value pairs (i.e. form fields and values)
-                contentType: false,       // The content type used when sending data to the server.
-                cache: false,             // To unable request pages to be cached
-                processData:false,    
-                 dataType: "JSON",    // To send DOMDocument or non processed data file it is set to false
-                success: function(data)   // A function to be called if request succeeds
+              
+            function submit(){
+              $('#submited').text('Processing...'); //change button text
+              $('#submited').attr('disabled',true); //set button disable
+              $('#submited').attr('class','btn btn-warning');
+               $.ajax({
+                url : '<?php echo site_url("admin/proses_tambah_p") ?>',
+                type: "POST",
+                data: $('#prosesTambah').serialize(),
+                dataType: "JSON",
+                success: function(data)
                 {
-                   var objek = jQuery.parseJSON(data);
-                      if (objek.status == 'false') {
-                        $('#hargaError').html(objek.harga);
-                        $('#namaError').html(objek.nama);
-                        $('#gambarError').html(objek.gambar);
-                        $('#deskripsiError').html(objek.deskripsi);
-                        $('#token').html(' <input type="hidden" id="token" name="'+objek.csrfTokenName+'" value="'+objek.csrfHash+'">');
+                  var objek = jQuery.parseJSON(data);
+                  if (objek.status == 'false') {
+                    $('#hargaError').html(objek.harga);
+                    $('#namaError').html(objek.nama);
+                    $('#deskripsiError').html(objek.deskripsi);
+                    $('#token').html(' <input type="hidden" id="token" name="'+objek.csrfTokenName+'" value="'+objek.csrfHash+'">');
 
-                         $('#submited').text('Submit'); //change button text
-                         $('#submited').attr('disabled',false); //set button disable
-                         $('#submited').attr('class','btn btn-primary');
-                      }
-                      else
-                      {
-                             swal({
-                                title: "Berhasil",
-                                text: "Menambahkan Produk Baru",
-                                type: "success",
-                                showCancelButton: false,
-                                confirmButtonColor: "green",
-                                confirmButtonText: "close",
-                                closeOnConfirm: false,
-                                closeOnCancel: false },
-                            function (isConfirm) {
-                                if (isConfirm) {
-                                   window.location.href = "<?php echo base_url('admin/produk') ?>";
-                                } 
-                            });
-                      }
+                     $('#submited').text('Submit'); //change button text
+                     $('#submited').attr('disabled',false); //set button disable
+                     $('#submited').attr('class','btn btn-primary');
+                  }
+                  else
+                  {
+                         swal({
+                            title: "Berhasil",
+                            text: "Menambahkan Produk Baru",
+                            type: "success",
+                            showCancelButton: false,
+                            confirmButtonColor: "green",
+                            confirmButtonText: "close",
+                            closeOnConfirm: false,
+                            closeOnCancel: false },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                window.location.href = "<?php echo base_url('admin/produk') ?>";
+                            } 
+                        });
+                  }
+                  
+                },
+                error: function (jqXHR, textStatus, errorThrown)
+                {
+                    alert(errorThrown);
+         
                 }
-                });
-                }));
-
-           
+            });
+           }
           </script>

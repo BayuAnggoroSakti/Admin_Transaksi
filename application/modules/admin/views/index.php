@@ -38,7 +38,7 @@
                         { ?>
                           <tr>
                             <td><?php echo $i++; ?></td>
-                            <td><?php echo IndoFormat::indonesian_date($data->tanggal); ?></td>
+                            <td><a href="javascript:void(0)"" onclick="detail(<?php echo $data->id_transaksi ?>)"><?php echo IndoFormat::indonesian_date($data->tanggal); ?></a></td>
                             <td><?php echo $data->user ?></td>
                             <td><?php echo IndoFormat::rupiah($data->total); ?></td>
                             <td><?php echo $data->lokasi; ?></td>
@@ -84,5 +84,61 @@
 
             });
         });
+
+        function detail(id){
+             $("#modal_form").modal({"backdrop": "static"});
+                $.ajax({
+                    url : "<?php echo site_url('admin/detail')?>/" + id,
+                    type: "GET",
+                    success: function(data)
+                    {
+                        //console.log(data);
+                    /*  for (var i = 0; i < data.length; i++) {
+                        $('#body').append('<tr><td>'+data[i].nama+'</td><td>'+data[i].qty+'</td><td>'+data[i].subtotal+'</td></tr>');
+                        console.log(data[i].nama);
+                        }*/
+                        $('#myTable').html(data);
+                        $('#modal_form').modal('show'); // show bootstrap modal when complete loaded
+
+                        $('.modal-title').text('Detail Transaksi'); // Set title to Bootstrap modal title
+                        
+             
+                    },
+                    error: function (jqXHR, textStatus, errorThrown)
+                    {
+                        alert('Error get data from ajax');
+                    }
+                });
+        }
+        function close()
+        {
+            $('#body').remove();;
+        }
     </script>
+<div class="modal fade" id="modal_form" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="close()" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" align="center">Person Form</h3>
+                <hr>
+            </div>
+            <div class="modal-body">
+              <table class="table table-bordered" id="myTable">
+                <thead>
+                  <tr align="center">
+                    <th>Nama</th> 
+                    <th>Quantity</th> 
+                    <th>Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody id="body">
+                  
+                </tbody>
+              </table>
+            </div>
+           
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
                
